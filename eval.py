@@ -25,21 +25,21 @@ parser = argparse.ArgumentParser(description='Predict depth, filter, and fuse. M
 parser.add_argument('--model', default='mvsnet', help='select model')
 
 parser.add_argument('--dataset', default='dtu_yao_eval', help='select dataset')
-parser.add_argument('--testpath', help='testing data path')
-parser.add_argument('--testlist', help='testing scan list')
+parser.add_argument('--testpath', default="F:/dataset/dta benchmark/dtu_test/dtu",help='testing data path')
+parser.add_argument('--testlist', default='lists/dtu/test.txt',help='testing scan list')
 
 parser.add_argument('--batch_size', type=int, default=1, help='testing batch size')
 parser.add_argument('--numdepth', type=int, default=192, help='the number of depth values')
 parser.add_argument('--interval_scale', type=float, default=1.06, help='the depth interval scale')
 
-parser.add_argument('--loadckpt', default=None, help='load a specific checkpoint')
+parser.add_argument('--loadckpt', default='./checkpoints/d192/model_000014.ckpt', help='load a specific checkpoint')
 parser.add_argument('--outdir', default='./outputs', help='output dir')
 parser.add_argument('--display', action='store_true', help='display depth images and masks')
 
 # parse arguments and check
 args = parser.parse_args()
 print("argv:", sys.argv[1:])
-print_args(args)
+# print_args(args)
 
 
 # read intrinsics and extrinsics
@@ -53,12 +53,17 @@ def read_camera_parameters(filename):
     intrinsics = np.fromstring(' '.join(lines[7:10]), dtype=np.float32, sep=' ').reshape((3, 3))
     # TODO: assume the feature is 1/4 of the original image size
     intrinsics[:2, :] /= 4
+    ########OOM
+    intrinsics[0] *= 512/1600
+    intrinsics[1] *= 384/1200
+    ########OOM
     return intrinsics, extrinsics
 
 
 # read an image
 def read_img(filename):
-    img = Image.open(filename)
+    # img = Image.open(filename)
+    img = Image.open(filename).resize((512, 384), Image.BILINEAR)
     # scale 0~255 to 0~1
     np_img = np.array(img, dtype=np.float32) / 255.
     return np_img
@@ -98,7 +103,9 @@ def save_depth():
 
     # model
     model = MVSNet(refine=False)
-    model = nn.DataParallel(model)
+    if torch.cuda.device_count() > 1:  # 判断是不是有多个GPU
+        print("Let's use", torch.cuda.device_count(), "GPUs!")
+        model = nn.DataParallel(model)
     model.cuda()
 
     # load checkpoint file specified by args.loadckpt
@@ -110,6 +117,7 @@ def save_depth():
     with torch.no_grad():
         for batch_idx, sample in enumerate(TestImgLoader):
             sample_cuda = tocuda(sample)
+            # sample_cuda = sample
             outputs = model(sample_cuda["imgs"], sample_cuda["proj_matrices"], sample_cuda["depth_values"])
             outputs = tensor2numpy(outputs)
             del sample_cuda
@@ -265,7 +273,8 @@ def filter_depth(scan_folder, out_folder, plyfilename):
         valid_points = final_mask
         print("valid_points", valid_points.mean())
         x, y, depth = x[valid_points], y[valid_points], depth_est_averaged[valid_points]
-        color = ref_img[1:-16:4, 1::4, :][valid_points]  # hardcoded for DTU dataset
+        # color = ref_img[1:-16:4, 1::4, :][valid_points]  # hardcoded for DTU dataset
+        color = ref_img[::4, ::4, :][valid_points]  # hardcoded for DTU dataset
         xyz_ref = np.matmul(np.linalg.inv(ref_intrinsics),
                             np.vstack((x, y, np.ones_like(x))) * depth)
         xyz_world = np.matmul(np.linalg.inv(ref_extrinsics),
@@ -299,7 +308,7 @@ def filter_depth(scan_folder, out_folder, plyfilename):
 
 if __name__ == '__main__':
     # step1. save all the depth maps and the masks in outputs directory
-    # save_depth()
+    save_depth()
 
     with open(args.testlist) as f:
         scans = f.readlines()

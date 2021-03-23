@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
+import torchsnooper
 
 class ConvBnReLU(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size=3, stride=1, pad=1):
@@ -92,7 +92,6 @@ class Hourglass3d(nn.Module):
         dconv1 = F.relu(self.dconv1(dconv2) + self.redir1(x), inplace=True)
         return dconv1
 
-
 def homo_warping(src_fea, src_proj, ref_proj, depth_values):
     # src_fea: [B, C, H, W]
     # src_proj: [B, 4, 4]
@@ -153,10 +152,15 @@ if __name__ == "__main__":
     item = next(iter(dataloader))
 
     imgs = item["imgs"][:, :, :, ::4, ::4].cuda()
+    # imgs = item["imgs"][:, :, :, ::4, ::4]
     proj_matrices = item["proj_matrices"].cuda()
+    # proj_matrices = item["proj_matrices"]
     mask = item["mask"].cuda()
+    # mask = item["mask"]
     depth = item["depth"].cuda()
+    # depth = item["depth"]
     depth_values = item["depth_values"].cuda()
+    # depth_values = item["depth_values"]
 
     imgs = torch.unbind(imgs, 1)
     proj_matrices = torch.unbind(proj_matrices, 1)

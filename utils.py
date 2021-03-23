@@ -5,11 +5,11 @@ import torch.nn.functional as F
 
 
 # print arguments
-def print_args(args):
-    print("################################  args  ################################")
-    for k, v in args.__dict__.items():
-        print("{0: <10}\t{1: <30}\t{2: <20}".format(k, str(v), str(type(v))))
-    print("########################################################################")
+# def print_args(args):
+#     print("################################  args  ################################")
+#     for k, v in args.__dict__.items():
+#         print("{0: <10}\t{1: <30}\t{2: <20}".format(k, str(v), str(type(v))))
+#     print("########################################################################")
 
 
 # torch.no_grad warpper for functions
@@ -60,6 +60,7 @@ def tensor2numpy(vars):
 @make_recursive_func
 def tocuda(vars):
     if isinstance(vars, torch.Tensor):
+        # return vars.cuda()
         return vars.cuda()
     elif isinstance(vars, str):
         return vars

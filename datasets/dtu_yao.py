@@ -6,6 +6,7 @@ from datasets.data_io import *
 
 
 # the DTU dataset preprocessed by Yao Yao (only for training)
+#trainpath,trainlist,mode(train/test),nview??shijiaoshu,numberofdepth,meige shengdu de jiange
 class MVSDataset(Dataset):
     def __init__(self, datapath, listfile, mode, nviews, ndepths=192, interval_scale=1.06, **kwargs):
         super(MVSDataset, self).__init__()
@@ -44,6 +45,19 @@ class MVSDataset(Dataset):
     def __len__(self):
         return len(self.metas)
 
+    # def read_cam_file(self, filename):
+    #     with open(filename) as f:
+    #         lines = f.readlines()
+    #         lines = [line.rstrip() for line in lines]
+    #     # extrinsics: line [1,5), 4x4 matrix
+    #     extrinsics = np.fromstring(' '.join(lines[1:5]), dtype=np.float32, sep=' ').reshape((4, 4))
+    #     # intrinsics: line [7-10), 3x3 matrix
+    #     intrinsics = np.fromstring(' '.join(lines[7:10]), dtype=np.float32, sep=' ').reshape((3, 3))
+    #     # depth_min & depth_interval: line 11
+    #     depth_min = float(lines[11].split()[0])
+    #     depth_interval = float(lines[11].split()[1]) * self.interval_scale
+    #     return intrinsics, extrinsics, depth_min, depth_interval
+
     def read_cam_file(self, filename):
         with open(filename) as f:
             lines = f.readlines()
@@ -52,13 +66,23 @@ class MVSDataset(Dataset):
         extrinsics = np.fromstring(' '.join(lines[1:5]), dtype=np.float32, sep=' ').reshape((4, 4))
         # intrinsics: line [7-10), 3x3 matrix
         intrinsics = np.fromstring(' '.join(lines[7:10]), dtype=np.float32, sep=' ').reshape((3, 3))
+        #CHANGE TO intrinsics forRESIZE
+        intrinsics[0] *= 160/640
+        intrinsics[1] *= 128 / 512
         # depth_min & depth_interval: line 11
         depth_min = float(lines[11].split()[0])
         depth_interval = float(lines[11].split()[1]) * self.interval_scale
         return intrinsics, extrinsics, depth_min, depth_interval
 
+    # def read_img(self, filename):
+    #     img = Image.open(filename)
+    #     # scale 0~255 to 0~1
+    #     np_img = np.array(img, dtype=np.float32) / 255.
+    #     return np_img
     def read_img(self, filename):
         img = Image.open(filename)
+        # RESIZE IMAGE
+        img = img.resize((160, 128), Image.BILINEAR)
         # scale 0~255 to 0~1
         np_img = np.array(img, dtype=np.float32) / 255.
         return np_img

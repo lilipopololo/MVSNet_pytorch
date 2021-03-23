@@ -25,17 +25,17 @@ parser.add_argument('--mode', default='train', help='train or test', choices=['t
 parser.add_argument('--model', default='mvsnet', help='select model')
 
 parser.add_argument('--dataset', default='dtu_yao', help='select dataset')
-parser.add_argument('--trainpath', help='train datapath')
+parser.add_argument('--trainpath', default="E:/dtu_training/mvs_training/dtu",help='train datapath')
 parser.add_argument('--testpath', help='test datapath')
-parser.add_argument('--trainlist', help='train list')
-parser.add_argument('--testlist', help='test list')
+parser.add_argument('--trainlist',default="lists/dtu/train.txt",help='train list')
+parser.add_argument('--testlist',default="lists/dtu/test.txt", help='test list')
 
-parser.add_argument('--epochs', type=int, default=16, help='number of epochs to train')
+parser.add_argument('--epochs', type=int, default=1, help='number of epochs to train')
 parser.add_argument('--lr', type=float, default=0.001, help='learning rate')
 parser.add_argument('--lrepochs', type=str, default="10,12,14:2", help='epoch ids to downscale lr and the downscale rate')
 parser.add_argument('--wd', type=float, default=0.0, help='weight decay')
 
-parser.add_argument('--batch_size', type=int, default=12, help='train batch size')
+parser.add_argument('--batch_size', type=int, default=1, help='train batch size')
 parser.add_argument('--numdepth', type=int, default=192, help='the number of depth values')
 parser.add_argument('--interval_scale', type=float, default=1.06, help='the number of depth values')
 
@@ -56,7 +56,7 @@ if args.testpath is None:
     args.testpath = args.trainpath
 
 torch.manual_seed(args.seed)
-torch.cuda.manual_seed(args.seed)
+# torch.cuda.manual_seed(args.seed)
 
 # create logger for mode "train" and "testall"
 if args.mode == "train":
@@ -69,8 +69,8 @@ if args.mode == "train":
     print("creating new summary file")
     logger = SummaryWriter(args.logdir)
 
-print("argv:", sys.argv[1:])
-print_args(args)
+# print("argv:", sys.argv[1:])
+# print_args(args)
 
 # dataset, dataloader
 MVSDataset = find_dataset_def(args.dataset)
@@ -81,8 +81,11 @@ TestImgLoader = DataLoader(test_dataset, args.batch_size, shuffle=False, num_wor
 
 # model, optimizer
 model = MVSNet(refine=False)
-if args.mode in ["train", "test"]:
-    model = nn.DataParallel(model)
+if torch.cuda.device_count() > 1:#判断是不是有多个GPU
+    print("Let's use", torch.cuda.device_count(), "GPUs!")
+    # 就这一行
+    if args.mode in ["train", "test"]:
+        model = nn.DataParallel(model)
 model.cuda()
 model_loss = mvsnet_loss
 optimizer = optim.Adam(model.parameters(), lr=args.lr, betas=(0.9, 0.999), weight_decay=args.wd)
@@ -182,6 +185,7 @@ def train_sample(sample, detailed_summary=False):
     optimizer.zero_grad()
 
     sample_cuda = tocuda(sample)
+    # sample_cuda = sample
     depth_gt = sample_cuda["depth"]
     mask = sample_cuda["mask"]
 
@@ -211,6 +215,7 @@ def test_sample(sample, detailed_summary=True):
     model.eval()
 
     sample_cuda = tocuda(sample)
+    # sample_cuda = sample
     depth_gt = sample_cuda["depth"]
     mask = sample_cuda["mask"]
 
@@ -240,7 +245,6 @@ def profile():
 
     @make_nograd_func
     def do_iteration():
-        torch.cuda.synchronize()
         torch.cuda.synchronize()
         start_time = time.perf_counter()
         test_sample(next(iter_dataloader), detailed_summary=True)
