@@ -5,156 +5,156 @@ import torchsnooper
 from .module import *
 
 
-# class FeatureNet(nn.Module):
-#     def __init__(self):
-#         super(FeatureNet, self).__init__()
-#         self.inplanes = 32
-#
-#         self.conv0 = ConvBnReLU(3, 8, 3, 1, 1)
-#         self.conv1 = ConvBnReLU(8, 8, 3, 1, 1)
-#
-#         self.conv2 = ConvBnReLU(8, 16, 5, 2, 2)
-#         self.conv3 = ConvBnReLU(16, 16, 3, 1, 1)
-#         self.conv4 = ConvBnReLU(16, 16, 3, 1, 1)
-#
-#         self.conv5 = ConvBnReLU(16, 32, 5, 2, 2)
-#         self.conv6 = ConvBnReLU(32, 32, 3, 1, 1)
-#         self.feature = nn.Conv2d(32, 32, 3, 1, 1)
-#
-#     def forward(self, x):
-#         x = self.conv1(self.conv0(x))
-#         x = self.conv4(self.conv3(self.conv2(x)))##1/2
-#         x = self.feature(self.conv6(self.conv5(x)))##1/4
-#         return x
 class FeatureNet(nn.Module):
     def __init__(self):
         super(FeatureNet, self).__init__()
         self.inplanes = 32
 
-        # self.conv0 = ConvBnReLU(3, 8, 3, 1, 1)
-        self.conv0 = ConvBnReLU(3, 8, 3, 1, 1)#1
-        # self.conv1 = ConvBnReLU(8, 16, 5, 2, 2)
-        self.conv1 = ConvBnReLU(8, 16, 3, 2, 2)#1/2
-        # self.conv2 = ConvBnReLU(16, 16, 3, 1, 1)#1
-        self.conv3 = ConvBnReLU(16, 32, 3, 2, 2)#1/2
-        # self.feature = nn.Conv2d(32, 32, 3, 1, 1)#1
+        self.conv0 = ConvBnReLU(3, 8, 3, 1, 1)
+        self.conv1 = ConvBnReLU(8, 8, 3, 1, 1)
+
+        self.conv2 = ConvBnReLU(8, 16, 5, 2, 2)
+        self.conv3 = ConvBnReLU(16, 16, 3, 1, 1)
+        self.conv4 = ConvBnReLU(16, 16, 3, 1, 1)
+
+        self.conv5 = ConvBnReLU(16, 32, 5, 2, 2)
+        self.conv6 = ConvBnReLU(32, 32, 3, 1, 1)
         self.feature = nn.Conv2d(32, 32, 3, 1, 1)
-    @torchsnooper.snoop
+
     def forward(self, x):
-        print(x.shape)
-        x = self.conv1(self.conv0(x))#3>8>16
-        print(x.shape)
-        x = self.conv3(x)#16>32 1/4
-        print(x.shape)
-        x = self.feature(x)##32 1/4
-        print(x.shape)
+        x = self.conv1(self.conv0(x))
+        x = self.conv4(self.conv3(self.conv2(x)))
+        x = self.feature(self.conv6(self.conv5(x)))
         return x
-
-
-# class CostRegNet(nn.Module):
+# class FeatureNet(nn.Module):
 #     def __init__(self):
-#         super(CostRegNet, self).__init__()
-#         self.conv0 = ConvBnReLU3D(32, 8)
+#         super(FeatureNet, self).__init__()
+#         self.inplanes = 32
 #
-#         self.conv1 = ConvBnReLU3D(8, 16, stride=2)
-#         self.conv2 = ConvBnReLU3D(16, 16)
-#
-#         self.conv3 = ConvBnReLU3D(16, 32, stride=2)
-#         self.conv4 = ConvBnReLU3D(32, 32)
-#
-#         self.conv5 = ConvBnReLU3D(32, 64, stride=2)
-#         self.conv6 = ConvBnReLU3D(64, 64)
-#
-#         self.conv7 = nn.Sequential(
-#             nn.ConvTranspose3d(64, 32, kernel_size=3, padding=1, output_padding=1, stride=2, bias=False),
-#             nn.BatchNorm3d(32),
-#             nn.ReLU(inplace=True))
-#
-#         self.conv9 = nn.Sequential(
-#             nn.ConvTranspose3d(32, 16, kernel_size=3, padding=1, output_padding=1, stride=2, bias=False),
-#             nn.BatchNorm3d(16),
-#             nn.ReLU(inplace=True))
-#
-#         self.conv11 = nn.Sequential(
-#             nn.ConvTranspose3d(16, 8, kernel_size=3, padding=1, output_padding=1, stride=2, bias=False),
-#             nn.BatchNorm3d(8),
-#             nn.ReLU(inplace=True))
-#
-#         self.prob = nn.Conv3d(8, 1, 3, stride=1, padding=1)
-#
+#         # self.conv0 = ConvBnReLU(3, 8, 3, 1, 1)
+#         self.conv0 = ConvBnReLU(3, 8, 3, 1, 1)#1
+#         # self.conv1 = ConvBnReLU(8, 16, 5, 2, 2)
+#         self.conv1 = ConvBnReLU(8, 16, 3, 2, 2)#1/2
+#         # self.conv2 = ConvBnReLU(16, 16, 3, 1, 1)#1
+#         self.conv3 = ConvBnReLU(16, 32, 3, 2, 2)#1/2
+#         # self.feature = nn.Conv2d(32, 32, 3, 1, 1)#1
+#         self.feature = nn.Conv2d(32, 32, 3, 1, 1)
+#     @torchsnooper.snoop
 #     def forward(self, x):
-#         conv0 = self.conv0(x)##32->8
-#         conv2 = self.conv2(self.conv1(conv0))##8->16
-#         conv4 = self.conv4(self.conv3(conv2))##16->32
-#         x = self.conv6(self.conv5(conv4))##32->64
-#         x = conv4 + self.conv7(x)##64->32+32
-#         x = conv2 + self.conv9(x)##32->16+16
-#         x = conv0 + self.conv11(x)##16->8+8
-#         x = self.prob(x)
+#         print(x.shape)
+#         x = self.conv1(self.conv0(x))#3>8>16
+#         print(x.shape)
+#         x = self.conv3(x)#16>32 1/4
+#         print(x.shape)
+#         x = self.feature(x)##32 1/4
+#         print(x.shape)
 #         return x
+
+
 class CostRegNet(nn.Module):
     def __init__(self):
         super(CostRegNet, self).__init__()
-        # self.conv0 = ConvBnReLU3D(32, 8)
-        self.conv0 = ConvBnReLU3D(32, 8)#32>8
-        self.conv1 = ConvBnReLU3D(8, 16, stride=2)#8>16 1/2
-        self.conv2 = ConvBnReLU3D(16, 32, stride=2)#16>32 1/2
-        self.conv3 = ConvBnReLU3D(32, 64, stride=2)#32>64 1/2
+        self.conv0 = ConvBnReLU3D(32, 8)
+
+        self.conv1 = ConvBnReLU3D(8, 16, stride=2)
+        self.conv2 = ConvBnReLU3D(16, 16)
+
+        self.conv3 = ConvBnReLU3D(16, 32, stride=2)
+        self.conv4 = ConvBnReLU3D(32, 32)
+
+        self.conv5 = ConvBnReLU3D(32, 64, stride=2)
+        self.conv6 = ConvBnReLU3D(64, 64)
 
         self.conv7 = nn.Sequential(
             nn.ConvTranspose3d(64, 32, kernel_size=3, padding=1, output_padding=1, stride=2, bias=False),
             nn.BatchNorm3d(32),
             nn.ReLU(inplace=True))
 
-        self.conv8 = nn.Sequential(
+        self.conv9 = nn.Sequential(
             nn.ConvTranspose3d(32, 16, kernel_size=3, padding=1, output_padding=1, stride=2, bias=False),
             nn.BatchNorm3d(16),
             nn.ReLU(inplace=True))
 
-        self.conv9 = nn.Sequential(
+        self.conv11 = nn.Sequential(
             nn.ConvTranspose3d(16, 8, kernel_size=3, padding=1, output_padding=1, stride=2, bias=False),
             nn.BatchNorm3d(8),
             nn.ReLU(inplace=True))
 
         self.prob = nn.Conv3d(8, 1, 3, stride=1, padding=1)
-    @torchsnooper.snoop
+
     def forward(self, x):
-        conv0 = self.conv0(x)##32->8
-        conv1 = self.conv1(conv0)##8->16
-        conv2 = self.conv2(conv1)##16->32
-        conv3 = self.conv3(conv2)##32->64
-        x = conv2 + self.conv7(conv3)##64->32+32
-        x = conv1 + self.conv8(x)##32->16+16
-        x = conv0 + self.conv9(x)##16->8+8
+        conv0 = self.conv0(x)
+        conv2 = self.conv2(self.conv1(conv0))
+        conv4 = self.conv4(self.conv3(conv2))
+        x = self.conv6(self.conv5(conv4))
+        x = conv4 + self.conv7(x)
+        x = conv2 + self.conv9(x)
+        x = conv0 + self.conv11(x)
         x = self.prob(x)
         return x
-
-
-# class RefineNet(nn.Module):
+# class CostRegNet(nn.Module):
 #     def __init__(self):
-#         super(RefineNet, self).__init__()
-#         self.conv1 = ConvBnReLU(4, 32)
-#         self.conv2 = ConvBnReLU(32, 32)
-#         self.conv3 = ConvBnReLU(32, 32)
-#         self.res = ConvBnReLU(32, 1)
+#         super(CostRegNet, self).__init__()
+#         # self.conv0 = ConvBnReLU3D(32, 8)
+#         self.conv0 = ConvBnReLU3D(32, 8)#32>8
+#         self.conv1 = ConvBnReLU3D(8, 16, stride=2)#8>16 1/2
+#         self.conv2 = ConvBnReLU3D(16, 32, stride=2)#16>32 1/2
+#         self.conv3 = ConvBnReLU3D(32, 64, stride=2)#32>64 1/2
 #
-#     def forward(self, img, depth_init):
-#         concat = F.cat((img, depth_init), dim=1)
-#         depth_residual = self.res(self.conv3(self.conv2(self.conv1(concat))))
-#         depth_refined = depth_init + depth_residual
-#         return depth_refined
+#         self.conv7 = nn.Sequential(
+#             nn.ConvTranspose3d(64, 32, kernel_size=3, padding=1, output_padding=1, stride=2, bias=False),
+#             nn.BatchNorm3d(32),
+#             nn.ReLU(inplace=True))
+#
+#         self.conv8 = nn.Sequential(
+#             nn.ConvTranspose3d(32, 16, kernel_size=3, padding=1, output_padding=1, stride=2, bias=False),
+#             nn.BatchNorm3d(16),
+#             nn.ReLU(inplace=True))
+#
+#         self.conv9 = nn.Sequential(
+#             nn.ConvTranspose3d(16, 8, kernel_size=3, padding=1, output_padding=1, stride=2, bias=False),
+#             nn.BatchNorm3d(8),
+#             nn.ReLU(inplace=True))
+#
+#         self.prob = nn.Conv3d(8, 1, 3, stride=1, padding=1)
+#     @torchsnooper.snoop
+#     def forward(self, x):
+#         conv0 = self.conv0(x)##32->8
+#         conv1 = self.conv1(conv0)##8->16
+#         conv2 = self.conv2(conv1)##16->32
+#         conv3 = self.conv3(conv2)##32->64
+#         x = conv2 + self.conv7(conv3)##64->32+32
+#         x = conv1 + self.conv8(x)##32->16+16
+#         x = conv0 + self.conv9(x)##16->8+8
+#         x = self.prob(x)
+#         return x
+
+
 class RefineNet(nn.Module):
     def __init__(self):
         super(RefineNet, self).__init__()
         self.conv1 = ConvBnReLU(4, 32)
         self.conv2 = ConvBnReLU(32, 32)
+        self.conv3 = ConvBnReLU(32, 32)
         self.res = ConvBnReLU(32, 1)
-    @torchsnooper.snoop
+
     def forward(self, img, depth_init):
         concat = F.cat((img, depth_init), dim=1)
-        depth_residual = self.res(self.conv2(self.conv1(concat)))
+        depth_residual = self.res(self.conv3(self.conv2(self.conv1(concat))))
         depth_refined = depth_init + depth_residual
         return depth_refined
+# class RefineNet(nn.Module):
+#     def __init__(self):
+#         super(RefineNet, self).__init__()
+#         self.conv1 = ConvBnReLU(4, 32)
+#         self.conv2 = ConvBnReLU(32, 32)
+#         self.res = ConvBnReLU(32, 1)
+#     @torchsnooper.snoop
+#     def forward(self, img, depth_init):
+#         concat = F.cat((img, depth_init), dim=1)
+#         depth_residual = self.res(self.conv2(self.conv1(concat)))
+#         depth_refined = depth_init + depth_residual
+#         return depth_refined
 
 
 class MVSNet(nn.Module):
@@ -166,7 +166,7 @@ class MVSNet(nn.Module):
         self.cost_regularization = CostRegNet()
         if self.refine:
             self.refine_network = RefineNet()
-    @torchsnooper.snoop()
+    # @torchsnooper.snoop()
     def forward(self, imgs, proj_matrices, depth_values):
         imgs = torch.unbind(imgs, 1)
         proj_matrices = torch.unbind(proj_matrices, 1)
@@ -184,7 +184,7 @@ class MVSNet(nn.Module):
         del features
         # torch.cuda.memory_allocated()
         # torch.cuda.memory_cached()
-        # torch.cuda.empty_cache()
+        torch.cuda.empty_cache()
         ##changeforOOM
 
         # step 2. differentiable homograph, build cost volume

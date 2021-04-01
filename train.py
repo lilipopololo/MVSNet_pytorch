@@ -25,7 +25,7 @@ parser.add_argument('--mode', default='train', help='train or test', choices=['t
 parser.add_argument('--model', default='mvsnet', help='select model')
 
 parser.add_argument('--dataset', default='dtu_yao', help='select dataset')
-parser.add_argument('--trainpath', default="E:/dtu_training/mvs_training/dtu",help='train datapath')
+parser.add_argument('--trainpath', default="D:\dataset\dtu_training\dtu_training\mvs_training\dtu",help='train datapath')
 parser.add_argument('--testpath', help='test datapath')
 parser.add_argument('--trainlist',default="lists/dtu/train.txt",help='train list')
 parser.add_argument('--testlist',default="lists/dtu/test.txt", help='test list')
@@ -56,7 +56,7 @@ if args.testpath is None:
     args.testpath = args.trainpath
 
 torch.manual_seed(args.seed)
-# torch.cuda.manual_seed(args.seed)
+torch.cuda.manual_seed(args.seed)
 
 # create logger for mode "train" and "testall"
 if args.mode == "train":
@@ -76,16 +76,18 @@ if args.mode == "train":
 MVSDataset = find_dataset_def(args.dataset)
 train_dataset = MVSDataset(args.trainpath, args.trainlist, "train", 3, args.numdepth, args.interval_scale)
 test_dataset = MVSDataset(args.testpath, args.testlist, "test", 5, args.numdepth, args.interval_scale)
-TrainImgLoader = DataLoader(train_dataset, args.batch_size, shuffle=True, num_workers=8, drop_last=True)
-TestImgLoader = DataLoader(test_dataset, args.batch_size, shuffle=False, num_workers=4, drop_last=False)
+TrainImgLoader = DataLoader(train_dataset, args.batch_size, shuffle=True, num_workers=0, drop_last=True)
+TestImgLoader = DataLoader(test_dataset, args.batch_size, shuffle=False, num_workers=0, drop_last=False)
 
 # model, optimizer
 model = MVSNet(refine=False)
-if torch.cuda.device_count() > 1:#判断是不是有多个GPU
-    print("Let's use", torch.cuda.device_count(), "GPUs!")
-    # 就这一行
-    if args.mode in ["train", "test"]:
-        model = nn.DataParallel(model)
+# stat(model, (3, 160, 128))
+# if torch.cuda.device_count() > 1:#判断是不是有多个GPU
+#     print("Let's use", torch.cuda.device_count(), "GPUs!")
+#     # 就这一行
+#     if args.mode in ["train", "test"]:
+#         model = nn.DataParallel(model)
+model = nn.DataParallel(model)
 model.cuda()
 model_loss = mvsnet_loss
 optimizer = optim.Adam(model.parameters(), lr=args.lr, betas=(0.9, 0.999), weight_decay=args.wd)
@@ -245,10 +247,10 @@ def profile():
 
     @make_nograd_func
     def do_iteration():
-        torch.cuda.synchronize()
+        # torch.cuda.synchronize()
         start_time = time.perf_counter()
         test_sample(next(iter_dataloader), detailed_summary=True)
-        torch.cuda.synchronize()
+        # torch.cuda.synchronize()
         end_time = time.perf_counter()
         return end_time - start_time
 

@@ -103,10 +103,11 @@ def save_depth():
 
     # model
     model = MVSNet(refine=False)
-    if torch.cuda.device_count() > 1:  # 判断是不是有多个GPU
-        print("Let's use", torch.cuda.device_count(), "GPUs!")
-        model = nn.DataParallel(model)
+    # if torch.cuda.device_count() > 1:  # 判断是不是有多个GPU
+    #     print("Let's use", torch.cuda.device_count(), "GPUs!")
+    #     model = nn.DataParallel(model)
     model.cuda()
+    model = nn.DataParallel(model)
 
     # load checkpoint file specified by args.loadckpt
     print("loading model {}".format(args.loadckpt))

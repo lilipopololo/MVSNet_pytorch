@@ -1,0 +1,2 @@
+avg_test_scalars: {'loss': 11.513262645109181, 'abs_depth_error': 11.955283414699846, 'thres2mm_error': 0.4415433382047224, 'thres4mm_error': 0.2577170049028682, 'thres8mm_error': 0.16222529623107262}
+首先是训练了27000多张图片，然后用7000多没有使用的训练集进行了测试，得到的结果如上，训练出的model和checkpoints放到了checkpoints debug中

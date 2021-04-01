@@ -67,8 +67,8 @@ class MVSDataset(Dataset):
         # intrinsics: line [7-10), 3x3 matrix
         intrinsics = np.fromstring(' '.join(lines[7:10]), dtype=np.float32, sep=' ').reshape((3, 3))
         #CHANGE TO intrinsics forRESIZE
-        intrinsics[0] *= 160/640
-        intrinsics[1] *= 128 / 512
+        # intrinsics[0] *= 160/640
+        # intrinsics[1] *= 128/512
         # depth_min & depth_interval: line 11
         depth_min = float(lines[11].split()[0])
         depth_interval = float(lines[11].split()[1]) * self.interval_scale
@@ -82,7 +82,7 @@ class MVSDataset(Dataset):
     def read_img(self, filename):
         img = Image.open(filename)
         # RESIZE IMAGE
-        img = img.resize((160, 128), Image.BILINEAR)
+        # img = img.resize((160, 128), Image.BILINEAR)
         # scale 0~255 to 0~1
         np_img = np.array(img, dtype=np.float32) / 255.
         return np_img
