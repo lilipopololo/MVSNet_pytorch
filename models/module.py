@@ -124,7 +124,7 @@ def homo_warping(src_fea, src_proj, ref_proj, depth_values):
         grid = proj_xy
 
     warped_src_fea = F.grid_sample(src_fea, grid.view(batch, num_depth * height, width, 2), mode='bilinear',
-                                   padding_mode='zeros')
+                                   padding_mode='zeros',align_corners=True)
     warped_src_fea = warped_src_fea.view(batch, channels, num_depth, height, width)
 
     return warped_src_fea
@@ -146,7 +146,7 @@ if __name__ == "__main__":
     import cv2
 
     MVSDataset = find_dataset_def("dtu_yao")
-    dataset = MVSDataset("/home/xyguo/dataset/dtu_mvs/processed/mvs_training/dtu/", '../lists/dtu/train.txt', 'train',
+    dataset = MVSDataset("E:/dataset/dtu_training/dtu_training/mvs_training/dtu/", '../lists/dtu/train.txt', 'train',
                          3, 256)
     dataloader = DataLoader(dataset, batch_size=2)
     item = next(iter(dataloader))

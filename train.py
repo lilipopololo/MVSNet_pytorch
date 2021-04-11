@@ -122,7 +122,6 @@ def train():
 
     for epoch_idx in range(start_epoch, args.epochs):
         print('Epoch {}:'.format(epoch_idx))
-        lr_scheduler.step()
         global_step = len(TrainImgLoader) * epoch_idx
 
         # training
@@ -163,6 +162,7 @@ def train():
             print('Epoch {}/{}, Iter {}/{}, test loss = {:.3f}, time = {:3f}'.format(epoch_idx, args.epochs, batch_idx,
                                                                                      len(TestImgLoader), loss,
                                                                                      time.time() - start_time))
+        lr_scheduler.step()
         save_scalars(logger, 'fulltest', avg_test_scalars.mean(), global_step)
         print("avg_test_scalars:", avg_test_scalars.mean())
         # gc.collect()
