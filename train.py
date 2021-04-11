@@ -25,7 +25,7 @@ parser.add_argument('--mode', default='train', help='train or test', choices=['t
 parser.add_argument('--model', default='mvsnet', help='select model')
 
 parser.add_argument('--dataset', default='dtu_yao', help='select dataset')
-parser.add_argument('--trainpath', default="D:\dataset\dtu_training\dtu_training\mvs_training\dtu",help='train datapath')
+parser.add_argument('--trainpath', default="E:\dataset\dtu_training\dtu_training\mvs_training\dtu",help='train datapath')
 parser.add_argument('--testpath', help='test datapath')
 parser.add_argument('--trainlist',default="lists/dtu/train.txt",help='train list')
 parser.add_argument('--testlist',default="lists/dtu/test.txt", help='test list')
