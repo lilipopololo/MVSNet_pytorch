@@ -30,7 +30,7 @@ parser.add_argument('--testpath', help='test datapath')
 parser.add_argument('--trainlist',default="lists/dtu/train.txt",help='train list')
 parser.add_argument('--testlist',default="lists/dtu/test.txt", help='test list')
 
-parser.add_argument('--epochs', type=int, default=1, help='number of epochs to train')
+parser.add_argument('--epochs', type=int, default=2, help='number of epochs to train')
 parser.add_argument('--lr', type=float, default=0.001, help='learning rate')
 parser.add_argument('--lrepochs', type=str, default="10,12,14:2", help='epoch ids to downscale lr and the downscale rate')
 parser.add_argument('--wd', type=float, default=0.0, help='weight decay')
@@ -41,7 +41,7 @@ parser.add_argument('--interval_scale', type=float, default=1.06, help='the numb
 
 parser.add_argument('--loadckpt', default=None, help='load a specific checkpoint')
 parser.add_argument('--logdir', default='./checkpoints/debug', help='the directory to save checkpoints/logs')
-parser.add_argument('--resume', action='store_true', help='continue to train the model')
+parser.add_argument('--resume', default="true",action='store_true', help='continue to train the model')
 
 parser.add_argument('--summary_freq', type=int, default=20, help='print and summary frequency')
 parser.add_argument('--save_freq', type=int, default=1, help='save checkpoint frequency')
