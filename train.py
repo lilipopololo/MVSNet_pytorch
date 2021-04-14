@@ -30,7 +30,7 @@ parser.add_argument('--testpath', help='test datapath')
 parser.add_argument('--trainlist',default="lists/dtu/train.txt",help='train list')
 parser.add_argument('--testlist',default="lists/dtu/test.txt", help='test list')
 
-parser.add_argument('--epochs', type=int, default=2, help='number of epochs to train')
+parser.add_argument('--epochs', type=int, default=4, help='number of epochs to train')
 parser.add_argument('--lr', type=float, default=0.001, help='learning rate')
 parser.add_argument('--lrepochs', type=str, default="10,12,14:2", help='epoch ids to downscale lr and the downscale rate')
 parser.add_argument('--wd', type=float, default=0.0, help='weight decay')
@@ -69,8 +69,8 @@ if args.mode == "train":
     print("creating new summary file")
     logger = SummaryWriter(args.logdir)
 
-# print("argv:", sys.argv[1:])
-# print_args(args)
+print("argv:", sys.argv[1:])
+print_args(args)
 
 # dataset, dataloader
 MVSDataset = find_dataset_def(args.dataset)
